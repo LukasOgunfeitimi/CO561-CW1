@@ -1,4 +1,4 @@
-﻿//CW1 by Lukas Ogunfeitimi
+//CW1 by Lukas Ogunfeitimi
 open System; 
 open System.Threading;
 
@@ -106,6 +106,9 @@ let accounts = [
     new Account(accountNumber="0006",Balance=67)
     ]
 Sleep(250)
+
+// Loop through the 'accounts' list and call the CheckAccount() 
+// method from the 'account' type
 for account in accounts do
     account.CheckAccount()
     Sleep(75)
@@ -120,11 +123,18 @@ Task 3 (10%)
 *)
 Prompt("Start Task 3")
 
+//Loop through the 'account' list and 
+//make a condition that checks the 'Balance'
+//property for a certain amount
 let brokie = seq { for a in accounts do if a.Balance >= 0.0 && a.Balance < 50.0 then yield a }
 let rich = seq { for a in accounts do if a.Balance >= 50.0 then yield a }
 
+
 // We must specifically declare the parameter type as we are
 // going to access their properties within the loop.
+///<summary>Prints the bank account number alongside its balance</summary>
+///<param name="accounts">A sequence that contains the 'Account' type.</param>
+///<param name="typeAccount">The type of account based on its balance (broke or rich account).</param>
 let DisplayAccounts (accounts: Account seq, typeAccount: string) = 
     for a in accounts do
         Console.WriteLine("Account #" + a.accountNumber + " is a " + typeAccount + " account with a balance of $" + a.Balance.ToString())
@@ -150,15 +160,33 @@ To test this, create two threads that invoke BookSeat and implement locking with
 Prompt("Start Task 4 (without lock)")
 type Ticket = {seat:int; mutable customer:string}
 
+//Invoke the 'Ticket' type 10 times giving. Assigning the index
+//of the loop to the 'seat' property. 
 let mutable tickets = [for n in 1..10 -> {Ticket.seat = n; Ticket.customer = ""}]
 
+
+///<summary>Display each ticket with their seat number 
+///and the customer assigned to it.</summary>
+///<param name="ticketInfo">A list of the 'Ticket' type</param>
 let DisplayTickets (ticketInfo: Ticket list) = 
     for ticket in ticketInfo do
-        Console.WriteLine("Customer name: " + ticket.customer)
-        Console.WriteLine("Customer seat: " + ticket.seat.ToString())
+        //Temporary variable for an apprioprate message if the
+        //seat isn't assigned to anyoned
+        let customer = if ticket.customer <> "" then ticket.customer else "no one"
+        Console.WriteLine("Seat #: " + ticket.seat.ToString() + " is assigned to " + customer)
+        Sleep(40)
 
-
+///<summary>Attempt to book a seat for a customer. If the requested
+///seat is occupied then reject the request</summary>
+///<param name="cusotomerName">The customers name</param>
+///<param name="seatNumber">The seat number the customer is requesting</param>
 let BookSeat (customerName: string, seatNumber: int)=
+
+    //Loop through the 'Ticket' list until
+    //the seat number matches the requested seat number from the customer
+    //then check if the seat number is occupied
+    //if it is, then reject the request.
+    //if it isn't, then assign the seat and end the function
     for ticket in tickets do
         if seatNumber = ticket.seat then
             if ticket.customer = "" then
@@ -168,6 +196,7 @@ let BookSeat (customerName: string, seatNumber: int)=
             else 
                 Console.WriteLine("Seat #: " + ticket.seat.ToString() + " has already been booked by " + ticket.customer)
             |> ignore
+
 
 // Without using Lock
 let StartBooking (customerName:string, seatNumber:int) =
@@ -180,7 +209,11 @@ let StartBooking2 (customerName:string, seatNumber:int) =
 let thread1 = new Thread(fun () -> StartBooking("John", 3)) // Booked
 let thread2 = new Thread(fun () -> StartBooking("Lukas", 3)) // Booked
 
-thread1.Start()
+//Start() will tell the program to start scheduling the thread for execution
+//Join() will block the calling thread from running until the thread terminates
+//in this case the calling thread is our main program. If we wouldn't Join() the thread
+//it will still execute but the code after it will also execute immediately
+thread1.Start() 
 thread2.Start()
 
 thread1.Join()
@@ -197,5 +230,13 @@ threadLock2.Start()
 threadLock1.Join()
 threadLock2.Join()
 
+Console.WriteLine()
+
+Prompt("View all Tickets")
+
+DisplayTickets(tickets)
+
 Prompt("End program")
+
+
 
